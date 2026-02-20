@@ -3,13 +3,15 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../api/axios';
 
+const name = ref('');
 const email = ref('');
 const password = ref('');
 const router = useRouter();
 
-const login = async () => {
+const register = async () => {
   try {
-    const res = await api.post('/auth/login', {
+    const res = await api.post('/auth/register', {
+      name: name.value,
       email: email.value,
       password: password.value,
     });
@@ -17,17 +19,18 @@ const login = async () => {
     localStorage.setItem('token', res.data.access_token);
     router.push('/dashboard');
   } catch (err) {
-    alert('Login failed');
+    alert('Registration failed');
   }
 };
 </script>
 
 <template>
   <div>
-    <h2>Login</h2>
-    <p>Don't have an account? <router-link to="/register">Register here</router-link></p>
+    <h2>Register</h2>
+    <p>Already have an account? <router-link to="/login">Login here</router-link></p>
+    <input v-model="name" placeholder="Name" />
     <input v-model="email" placeholder="Email" />
     <input v-model="password" type="password" placeholder="Password" />
-    <button @click="login">Login</button>
+    <button @click="register">Register</button>
   </div>
 </template>
