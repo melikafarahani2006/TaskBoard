@@ -7,17 +7,21 @@ import {
   Param,
   Body,
   Query,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto, UpdateTaskDto } from './dtos/tasks.dto';
+import { AuthGuard } from '@nestjs/passport/dist/auth.guard';
 
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Get()
-  getTasks(@Query('userId') userId: string) {
-    return this.tasksService.getTasks(userId);
+  getTasks(@Req() req: any) {
+    return this.tasksService.getTasks(req.user.sub);
   }
 
   @Get(':id')
@@ -26,9 +30,9 @@ export class TasksController {
   }
 
   @Post()
-  create(@Query('userId') userId: string, @Body() dto: CreateTaskDto) {
+  create(@Req() req: any, @Body() dto: CreateTaskDto) {
     return this.tasksService.createTask(
-      userId,
+      req.user.sub,
       dto.title,
       dto.description || '',
     );
