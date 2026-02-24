@@ -290,22 +290,15 @@ const skipAndGoDashboard = () => {
 }
 
 .remove-btn {
-  background-color: #ff4336;
-  color: white;
   border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  font-size: 1.2em;
   cursor: pointer;
-  transition: background-color 0.3s;
-  flex-shrink: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 0.25rem;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s;
 }
 
-.remove-btn:hover:not(:disabled) {
+.remove-btn:hover {
   background-color: #d32f2f;
 }
 
