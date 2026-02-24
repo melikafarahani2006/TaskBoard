@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Role } from '../schemas/user.schema';
 
@@ -43,8 +43,9 @@ export class CreateUserDto {
   password: string;
 
   @ApiPropertyOptional({ enum: Role, default: Role.USER })
+  @IsOptional()
   @IsEnum(Role)
   role?: Role;
 }
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {}
+export class UpdateUserDto extends PartialType(CreateUserDto) { }
