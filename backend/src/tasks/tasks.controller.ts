@@ -2,53 +2,64 @@ import {
   Controller,
   Get,
   Post,
-  Put,
   Delete,
   Param,
   Body,
-  Query,
   UseGuards,
   Req,
+  HttpCode,
+  HttpStatus,
+  Patch,
 } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { TasksService } from './tasks.service';
-import { CreateTaskDto, UpdateTaskDto } from './dtos/tasks.dto';
-import { AuthGuard } from '@nestjs/passport/dist/auth.guard';
+import { CreateTaskDto } from './dtos/tasks.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@ApiTags('tasks')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('tasks')
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(private readonly tasksService: TasksService) { }
 
-  @UseGuards(AuthGuard('jwt'))
+  // @Post()
+  // @HttpCode(HttpStatus.CREATED)
+  // async createTask(@Req() req: any, @Body() createTaskDto: CreateTaskDto) {
+  //   const task = await this.tasksService.createTask(req.user.id, createTaskDto);
+  //   return { message: 'Task created successfully', data: task };
+  // }
+
+  @Post('bulk')
+  @HttpCode(HttpStatus.CREATED)
+  async createBulkTasks(@Req() req: any, @Body() body: { tasks: CreateTaskDto[] }) {
+    const tasks = await this.tasksService.createBulkTasks(req.user.id, body.tasks);
+    return { message: `${tasks.length} tasks created successfully`, data: tasks };
+  }
+
   @Get()
-  getTasks(@Req() req: any) {
-    return this.tasksService.getTasks(req.user.sub);
+  async getTasks(@Req() req: any) {
+    console.log('Fetching tasks for user:', req.user.id);
+    return await this.tasksService.getTasks(req.user.id);
   }
 
-  @Get(':id')
-  getTask(@Param('id') taskId: string) {
-    return this.tasksService.taskModel.findById(taskId);
-  }
-
-  @Post()
-  create(@Req() req: any, @Body() dto: CreateTaskDto) {
-    return this.tasksService.createTask(
-      req.user.sub,
-      dto.title,
-      dto.description || '',
-    );
-  }
-
-  @Put(':id')
-  update(@Param('id') taskId: string, @Body() dto: UpdateTaskDto) {
-    return this.tasksService.updateTask(
+  @Patch(':id')
+  async updateTask(
+    @Param('id') taskId: string,
+    @Req() req: any,
+    @Body() updateTaskDto: Partial<CreateTaskDto>,
+  ) {
+    const task = await this.tasksService.updateTask(
       taskId,
-      dto.title || '',
-      dto.description || '',
+      req.user.id,
+      updateTaskDto,
     );
+    return { message: 'Task updated successfully', data: task };
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.tasksService.deleteTask(id);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteTask(@Param('id') taskId: string, @Req() req: any) {
+    await this.tasksService.deleteTask(taskId, req.user.id);
   }
 }

@@ -12,5 +12,6 @@ import { User, UserSchema } from '../users/schemas/user.schema';
   ],
   controllers: [TasksController],
   providers: [TasksService],
+  exports: [TasksService],
 })
-export class TasksModule {}
+export class TasksModule { }
